@@ -1,13 +1,13 @@
-name: Node.js Build & Deploy to Main Branch
+name: Build & Deploy to Main Branch using PAT
 
 on:
   push:
     branches:
-      - main
+      - feature/*  # Trigger workflow on pushes to feature branches
   workflow_dispatch:
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,32 +25,22 @@ jobs:
       - name: Build Project
         run: npm run build
 
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifact
-          path: ./build
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-          path: ./build
-
-      - name: Commit & Push Build Files to Main Branch
+      - name: Deploy Build Files to Main Branch
         run: |
-          git config --global user.name "github-actions"
+          git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add build/
-          git commit -m "Deploy: Updated build files via CI/CD"
+
+          # Authenticate using PAT Token
+          git remote set-url origin https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}
+
+          # Fetch and switch to main branch
+          git fetch origin main
+          git checkout main
+          git pull origin main
+
+          # Copy build files from build folder to root
+          cp -r ./build/* ./
+
+          git add .
+          git commit -m "Deploy: Build files from feature branch to main"
           git push origin main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
