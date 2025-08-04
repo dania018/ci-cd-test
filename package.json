@@ -1,0 +1,14 @@
+{
+  "name": "ci-cd-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+      "build": "echo 'Building project...' && mkdir -p build && echo '<h1>Deployed via CI/CD</h1>' > build/index.html"
+
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
